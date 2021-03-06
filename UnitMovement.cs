@@ -33,7 +33,7 @@ public class UnitMovement : MonoBehaviour
     void Update()
     {
         // onclick, if tile is movable, moves unit there and updates location
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !gameManager.IsPointerOverUIObject())
         {
             if (movable)
             {
@@ -61,16 +61,15 @@ public class UnitMovement : MonoBehaviour
                         generalUnit.SetRemActions(generalUnit.GetRemActions() - 1);
                     }
 
-                    Debug.Log("OOC status: " + generalUnit.GetOOC());
+                    // Debug.Log("OOC status: " + generalUnit.GetOOC());
 
                     if(generalUnit.GetOOC() || generalUnit.GetRemActions() > 0)
                     {
-                        Debug.Log("HERE");
                         Move();
                         gameObject.GetComponent<UnitCombat>().Attack();
                     }
 
-                    gameManager.ClearUnitList(); // needed here?
+                    // gameManager.ClearUnitList(); // needed here?
                 }
             }
         }
@@ -100,5 +99,10 @@ public class UnitMovement : MonoBehaviour
     public void SetOcc(bool val)
     {
         mapManager.SetOccupancy(val, location);
+    }
+
+    public void SetMovable(bool val)
+    {
+        movable = val;
     }
 }

@@ -11,6 +11,8 @@ public class UnitCombat : MonoBehaviour
 
     private int rng;
 
+    private int ini;
+
     private MapManager mapManager;
     private GameManager gameManager;
     private UnitGeneral generalUnit;
@@ -44,7 +46,7 @@ public class UnitCombat : MonoBehaviour
     private void Update()
     {
         // onclick, if tile is atkable, perform an attack on the target
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !gameManager.IsPointerOverUIObject())
         {
             if (atkAble)
             {
@@ -72,11 +74,16 @@ public class UnitCombat : MonoBehaviour
                             Attack();
                         }
 
-                        gameManager.ClearUnitList(); // needed here?
+                        // gameManager.ClearUnitList(); // needed here?
                     }
                 }
             }
         }
+    }
+
+    public void RollIni()
+    {
+        ini =  Random.Range(1, 7) + agi; // roll d6 + agi
     }
 
     // Given a location, indicate all enemies on tiles that can be attacked
@@ -139,5 +146,15 @@ public class UnitCombat : MonoBehaviour
         generalUnit.TakeDmg(dmg);
 
         Debug.Log("Inflicted " + dmg + " to target.");
+    }
+
+    public int GetIni()
+    {
+        return ini;
+    }
+
+    public void SetAtkable(bool val)
+    {
+        atkAble = val;
     }
 }
