@@ -29,9 +29,6 @@ public class GameManager : MonoBehaviour
     private UnitCombat cCombatUnit;
 
     private GameObject playerUnit;
-    //private UnitGeneral pGeneralUnit;
-    //private UnitMovement pMovmentUnit;
-    //private UnitCombat pCombatUnit;
 
     void Start()
     {
@@ -44,12 +41,13 @@ public class GameManager : MonoBehaviour
         EndTurnBT.SetActive(false);
 
         mapManager.Init();
-        SpawnFangedDeserter();
 
-        SpawnSkeleton(new Vector3(3f, 0, 0), 1);
+        SpawnFangedDeserter(mapManager.CellToWorld(new Vector3Int(-4, -7, 0)));
+
+        SpawnSkeleton(mapManager.CellToWorld(new Vector3Int(2, 2, 0)), 1);
+        SpawnSkeleton(mapManager.CellToWorld(new Vector3Int(0, 5, 0)), 1);
 
         playerUnit.GetComponent<UnitMovement>().Move();
-        // units[0].GetComponent<UnitCombat>().Attack();
     }
 
     public bool IsPointerOverUIObject()
@@ -59,7 +57,7 @@ public class GameManager : MonoBehaviour
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
 
-        Debug.Log("PointerOverUIObject count: " + results.Count);
+        // Debug.Log("PointerOverUIObject count: " + results.Count);
 
         return results.Count > 0;
     }
@@ -152,13 +150,13 @@ public class GameManager : MonoBehaviour
         // back to moving normally
     }
 
-    private void SpawnFangedDeserter()
+    private void SpawnFangedDeserter(Vector3 location)
     {
         UnitGeneral generalUnit;
         UnitMovement movementUnit;
         UnitCombat combatUnit;
 
-        playerUnit = Instantiate(penguinViking, new Vector3(0, 0, 0), transform.rotation);
+        playerUnit = Instantiate(penguinViking, location, transform.rotation); // -4, -7
 
         movementUnit = playerUnit.GetComponent<UnitMovement>();
         movementUnit.Init(2);

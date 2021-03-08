@@ -103,7 +103,10 @@ public class MapManager : MonoBehaviour
                     selectedTileCoordinate = tileCoordinate;
 
                     TileBase selectedTile = tilemap.GetTile(selectedTileCoordinate);
-                    Debug.Log("Selected: " + dataFromTiles[selectedTile].terrain + ", " + selectedTileCoordinate + " Occupancy: " + GetOccupancyStatus(selectedTileCoordinate) + ", Movable: " + GetMovableStatus(selectedTileCoordinate) + ", Atkable: " + GetAtkableStatus(selectedTileCoordinate));
+                    if(selectedTile != null)
+                    {
+                        Debug.Log("Selected: " + dataFromTiles[selectedTile].terrain + ", " + selectedTileCoordinate + " Occupancy: " + GetOccupancyStatus(selectedTileCoordinate) + ", Movable: " + GetMovableStatus(selectedTileCoordinate) + ", Atkable: " + GetAtkableStatus(selectedTileCoordinate));
+                    }
                 }
             }
         }
@@ -183,100 +186,6 @@ public class MapManager : MonoBehaviour
             if (tileCoordinates[i] == location)
             {
                 tileAtkable[i] = val;
-            }
-        }
-    }
-
-    // given the unit location and its spd stat, compute and display movable hexes, also marks those hexes as movable
-    public void CheckMovement(Vector3 unitLoc, float unitSpd)
-    {
-        // Debug.Log("UnitLoc: " + unitLoc); // cell position
-
-        float x = unitLoc.x;
-        float y = unitLoc.y;
-
-        // moveHL.SetTile(new Vector3Int((int)x, (int)y, 0), moveHLTile);
-
-        // go around the unitLoc
-        for (int i = 1; i <= unitSpd; i++)
-        {
-            x = unitLoc.x + i;
-            y = unitLoc.y;
-
-            for (int j = 0; j < i; j++)
-            {
-                // go up left
-                if (Mathf.Abs(y) % 2 == 0) // current y is even 
-                {
-                    x--;
-                }
-                y++;
-                SetMovable(true, new Vector3Int((int)x, (int)y, 0));
-            }
-
-            for (int j = 0; j < i; j++)
-            {
-                // go left
-                x--;
-                SetMovable(true, new Vector3Int((int)x, (int)y, 0));
-            }
-
-            for (int j = 0; j < i; j++)
-            {
-                // go down left
-                if (Mathf.Abs(y) % 2 == 0) // current y is even 
-                {
-                    x--;
-                }
-                y--;
-                SetMovable(true, new Vector3Int((int)x, (int)y, 0));
-            }
-
-            for (int j = 0; j < i; j++)
-            {
-                // go down right
-                if (Mathf.Abs(y) % 2 == 1) // current y is odd 
-                {
-                    x++;
-                }
-                y--;
-                SetMovable(true, new Vector3Int((int)x, (int)y, 0));
-            }
-
-            for (int j = 0; j < i; j++)
-            {
-                // go right
-                x++;
-                SetMovable(true, new Vector3Int((int)x, (int)y, 0));
-            }
-
-            for (int j = 0; j < i; j++)
-            {
-                // go up right
-                if (Mathf.Abs(y) % 2 == 1) // current y is odd 
-                {
-                    x++;
-                }
-                y++;
-                SetMovable(true, new Vector3Int((int)x, (int)y, 0));
-            }
-        }
-
-        // if any hex is occupied, make it not movable
-        for (int i = 0; i < tileCoordinates.Count; i++)
-        {
-            if (tileOccupancy[i] == true)
-            {
-                tileMovable[i] = false;
-            }
-        }
-
-        // highlight movable tiles
-        for (int i = 0; i < tileCoordinates.Count; i++)
-        {
-            if (tileMovable[i] == true)
-            {
-                tileHLmap.SetTile(tileCoordinates[i], moveHLTile);
             }
         }
     }
@@ -450,5 +359,251 @@ public class MapManager : MonoBehaviour
         {
             tileAtkable[i] = false;
         }
+    }
+
+    public Vector3Int TopNeighbor(Vector3 curLoc)
+    {
+        return new Vector3Int((int)curLoc.x + 1, (int)curLoc.y, 0);
+    }
+
+    public Vector3Int URNeighbor(Vector3 curLoc)
+    {
+        int x = (int)curLoc.x;
+        int y = (int)curLoc.y;
+
+        if (Mathf.Abs(y) % 2 == 1) // current y is odd 
+        {
+            x++;
+        }
+        y++;
+
+        return new Vector3Int(x, y, 0);
+    }
+
+    public Vector3Int LRNeighbor(Vector3 curLoc)
+    {
+        int x = (int)curLoc.x;
+        int y = (int)curLoc.y;
+
+        if (Mathf.Abs(y) % 2 == 0) // current y is even 
+        {
+            x--;
+        }
+        y++;
+
+        return new Vector3Int(x, y, 0);
+    }
+
+    public Vector3Int BotNeighbor(Vector3 curLoc)
+    {
+        return new Vector3Int((int)curLoc.x - 1, (int)curLoc.y, 0);
+    }
+
+    public Vector3Int LLNeighbor(Vector3 curLoc)
+    {
+        int x = (int)curLoc.x;
+        int y = (int)curLoc.y;
+
+        if (Mathf.Abs(y) % 2 == 0) // current y is even 
+        {
+            x--;
+        }
+        y--;
+
+        return new Vector3Int(x, y, 0);
+    }
+
+    public Vector3Int ULNeighbor(Vector3 curLoc)
+    {
+        int x = (int)curLoc.x;
+        int y = (int)curLoc.y;
+
+        if (Mathf.Abs(y) % 2 == 1) // current y is odd 
+        {
+            x++;
+        }
+        y--;
+
+        return new Vector3Int(x, y, 0);
+    }
+
+    public void CheckNeighborsMove(Vector3 center) // traverse through all neigboring hexes, also determines movable terrain
+    {
+        // center
+        Vector3Int loc = new Vector3Int((int)center.x, (int)center.y, 0);
+        TileBase curTile = tilemap.GetTile(loc);
+        if(curTile != null)
+        {
+            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            {
+                SetMovable(true, loc);
+            }
+        }
+        
+
+        // top neighbor
+        loc = TopNeighbor(center);
+        curTile = tilemap.GetTile(loc);
+        if (curTile != null)
+        {
+            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            {
+                SetMovable(true, loc);
+            }
+        }
+
+        // upper right neighbor
+        loc = URNeighbor(center);
+        curTile = tilemap.GetTile(loc);
+        if (curTile != null)
+        {
+            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            {
+                SetMovable(true, loc);
+            }
+        }
+        
+        // lower right neighbor
+        loc = LRNeighbor(center);
+        curTile = tilemap.GetTile(loc);
+        if (curTile != null)
+        {
+            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            {
+                SetMovable(true, loc);
+            }
+        }
+
+        // bottom neighbor
+        loc = BotNeighbor(center);
+        curTile = tilemap.GetTile(loc);
+        if (curTile != null)
+        {
+            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            {
+                SetMovable(true, loc);
+            }
+        }
+
+        // lower left neighbor
+        loc = LLNeighbor(center);
+        curTile = tilemap.GetTile(loc);
+        if (curTile != null)
+        {
+            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            {
+                SetMovable(true, loc);
+            }
+        }
+
+        // upper left neighbor
+        loc = ULNeighbor(center);
+        curTile = tilemap.GetTile(loc);
+        if (curTile != null)
+        {
+            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            {
+                SetMovable(true, loc);
+            }
+        }
+    }
+
+    // given the unit location and its spd stat, compute and display movable hexes, also marks those hexes as movable
+    public void CheckMovement(Vector3 unitLoc, float unitSpd)
+    {
+        CheckNeighborsMove(unitLoc);
+
+        int cnt = 0;
+        Vector3Int curCenter = new Vector3Int((int)unitLoc.x, (int)unitLoc.y, 0);
+
+        // go up
+        while(cnt < unitSpd-1 && GetMovableStatus(TopNeighbor(curCenter)))
+        {
+            
+            curCenter = TopNeighbor(curCenter);
+            // Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
+            CheckNeighborsMove(curCenter);
+
+            cnt++;
+        }
+
+        // go UR
+        cnt = 0;
+        curCenter = new Vector3Int((int)unitLoc.x, (int)unitLoc.y, 0);
+        while (cnt < unitSpd - 1 && GetMovableStatus(URNeighbor(curCenter)))
+        {
+
+            curCenter = URNeighbor(curCenter);
+            Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
+            CheckNeighborsMove(curCenter);
+
+            cnt++;
+        }
+
+        // go LR
+        cnt = 0;
+        curCenter = new Vector3Int((int)unitLoc.x, (int)unitLoc.y, 0);
+        while (cnt < unitSpd - 1 && GetMovableStatus(LRNeighbor(curCenter)))
+        {
+
+            curCenter = LRNeighbor(curCenter);
+            Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
+            CheckNeighborsMove(curCenter);
+
+            cnt++;
+        }
+
+        // go down
+        cnt = 0;
+        curCenter = new Vector3Int((int)unitLoc.x, (int)unitLoc.y, 0);
+        while (cnt < unitSpd - 1 && GetMovableStatus(BotNeighbor(curCenter)))
+        {
+
+            curCenter = BotNeighbor(curCenter);
+            Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
+            CheckNeighborsMove(curCenter);
+
+            cnt++;
+        }
+
+        // go LL
+        cnt = 0;
+        curCenter = new Vector3Int((int)unitLoc.x, (int)unitLoc.y, 0);
+        while (cnt < unitSpd - 1 && GetMovableStatus(LLNeighbor(curCenter)))
+        {
+
+            curCenter = LLNeighbor(curCenter);
+            Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
+            CheckNeighborsMove(curCenter);
+
+            cnt++;
+        }
+
+        // go UL
+        cnt = 0;
+        curCenter = new Vector3Int((int)unitLoc.x, (int)unitLoc.y, 0);
+        while (cnt < unitSpd - 1 && GetMovableStatus(ULNeighbor(curCenter)))
+        {
+
+            curCenter = ULNeighbor(curCenter);
+            Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
+            CheckNeighborsMove(curCenter);
+
+            cnt++;
+        }
+
+        // highlight movable tiles
+        for (int i = 0; i < tileCoordinates.Count; i++)
+        {
+            if (tileMovable[i] == true)
+            {
+                tileHLmap.SetTile(tileCoordinates[i], moveHLTile);
+            }
+        }
+    }
+
+    public Vector3 CellToWorld(Vector3Int loc)
+    {
+        return tilemap.GetCellCenterWorld(loc);
     }
 }
