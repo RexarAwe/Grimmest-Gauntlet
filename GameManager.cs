@@ -16,8 +16,10 @@ public class GameManager : MonoBehaviour
     public int turn;
     [SerializeField] public List<GameObject> units; // units to consider for gameplay
     private int unitID = 0;
+    [SerializeField] public List<GameObject> enemies; // enemies in the battle
 
     private MapManager mapManager;
+    private CameraControl camControl;
 
     private GameObject StartCombatBT;
     private GameObject EndCombatBT;
@@ -33,21 +35,42 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         mapManager = GameObject.Find("Map Manager").GetComponent<MapManager>();
-        // StartCombatBT = GameObject.Find("Start Combat BT");
+        camControl = GameObject.Find("Main Camera").GetComponent<CameraControl>();
+
+        StartCombatBT = GameObject.Find("Start Combat BT");
         EndCombatBT = GameObject.Find("End Combat BT");
-        EndTurnBT = GameObject.Find("End Turn BT");
-        // StartCombatBT.SetActive(true);
+        // EndTurnBT = GameObject.Find("End Turn BT");
+        StartCombatBT.SetActive(true);
         EndCombatBT.SetActive(false);
-        EndTurnBT.SetActive(false);
+        // EndTurnBT.SetActive(false);
 
         mapManager.Init();
+        camControl.Init();
 
-        SpawnFangedDeserter(mapManager.CellToWorld(new Vector3Int(-4, -7, 0)));
+        camControl.SetCameraPos(7.9f, 4.8f);
+        camControl.SetCameraSize(4.3f);
+        camControl.SetMoveLock(true);
+        camControl.SetZoomLock(true);
 
-        SpawnSkeleton(mapManager.CellToWorld(new Vector3Int(2, 2, 0)), 1);
-        SpawnSkeleton(mapManager.CellToWorld(new Vector3Int(0, 5, 0)), 1);
+        SpawnFangedDeserter(mapManager.CellToWorld(new Vector3Int(3, 6, 0)));
+
+        SpawnSkeleton(mapManager.CellToWorld(new Vector3Int(0, 3, 0)), 1);
+        SpawnSkeleton(mapManager.CellToWorld(new Vector3Int(-2, 3, 0)), 1);
 
         playerUnit.GetComponent<UnitMovement>().Move();
+    }
+
+    void Update()
+    {
+        if(Input.GetKeyDown("1"))
+        {
+            SwordAttack();
+        }
+
+        if (Input.GetKeyDown("space"))
+        {
+            EndTurn();
+        }
     }
 
     public bool IsPointerOverUIObject()
@@ -90,64 +113,105 @@ public class GameManager : MonoBehaviour
 
         PlayTurn();
 
-        EndTurnBT.SetActive(true); 
+        StartCombatBT.SetActive(false);
+
+        // EndTurnBT.SetActive(true); 
     }
 
     public void PlayTurn()
     {
         Debug.Log("Play Unit " + cGeneralUnit.GetID() + "'s Turn");
 
-        // cGeneralUnit.Focus();
+        cGeneralUnit.Focus();
         cMovementUnit.Move();
-        cCombatUnit.Attack();
+        // cCombatUnit.Attack();
 
         // if player unit, display unit actions and display end turn
 
         // if npc unit, run ai
     }
 
+    public void SwordAttack()
+    {
+        if(currentUnit != null)
+        {
+            if (cGeneralUnit.GetRemActions() > 0)
+            {
+                cCombatUnit.Attack();
+            }
+            else
+            {
+                Debug.Log("Out of Action Points.");
+            }
+        }
+    }
+
     public void EndTurn()
     {
-        mapManager.ClearHLTiles();
-
-        // disallow movement of the unit before moving on
-        cMovementUnit.SetMovable(false);
-        cCombatUnit.SetAtkable(false);
-
-        // restore action points for next turn
-        cGeneralUnit.RestoreActions();
-
-        // remove any dead units
-        units = units.Where(unit => unit != null).ToList();
-
-        //// go to the next unit's turn
-        if (turn >= units.Count - 1)
+        if(currentUnit != null)
         {
-            turn = 0;
+            mapManager.ClearHLTiles();
+
+            // disallow movement of the unit before moving on
+            cMovementUnit.SetMovable(false);
+            cCombatUnit.SetAtkable(false);
+
+            // restore action points for next turn
+            cGeneralUnit.RestoreActions();
+
+            // remove any dead units
+            //units = units.Where(unit => unit != null).ToList();
+            ClearUnitList();
+
+            // go to the next unit's turn
+            if (turn >= units.Count - 1)
+            {
+                turn = 0;
+            }
+            else
+            {
+                turn++;
+            }
+
+            currentUnit = units[turn]; // keep track of the current turn's unit
+            cMovementUnit = currentUnit.GetComponent<UnitMovement>();
+            cGeneralUnit = currentUnit.GetComponent<UnitGeneral>();
+            cCombatUnit = currentUnit.GetComponent<UnitCombat>();
+
+            if (playerUnit == null)
+            {
+                Debug.Log("player unit is dead!");
+                GameOver();
+            }
+
+            if (enemies.Count > 0)
+            {
+                PlayTurn(); // move on to next turn
+            }
+            else
+            {
+                Debug.Log("Battle Ended");
+                EndBattle();
+            }
         }
         else
         {
-            turn++;
+            Debug.Log("current unit is null");
         }
-
-        currentUnit = units[turn]; // keep track of the current turn's unit
-        cMovementUnit = currentUnit.GetComponent<UnitMovement>();
-        cGeneralUnit = currentUnit.GetComponent<UnitGeneral>();
-        cCombatUnit = currentUnit.GetComponent<UnitCombat>();
-
-        PlayTurn(); // move on to next turn
     }
+        
 
     public void EndBattle() // shows up after combat is resolved
     {
         ClearUnitList(); // clear out any dead units
 
         playerUnit.GetComponent<UnitGeneral>().SetOOC(true);
-        // StartCombatBT.SetActive(false);
+        StartCombatBT.SetActive(true);
         EndCombatBT.SetActive(false);
-        EndTurnBT.SetActive(false);
+        // EndTurnBT.SetActive(false);
 
         // back to moving normally
+        playerUnit.GetComponent<UnitMovement>().Move();
     }
 
     private void SpawnFangedDeserter(Vector3 location)
@@ -198,6 +262,7 @@ public class GameManager : MonoBehaviour
         combatUnit.Init();
 
         AddUnit(unit);
+        AddEnemy(unit);
         unitID++;
     }
 
@@ -206,16 +271,24 @@ public class GameManager : MonoBehaviour
         units.Add(unit);
     }
 
+    public void AddEnemy(GameObject unit) // add the unit to the unit tracking list
+    {
+        enemies.Add(unit);
+    }
+
     // return the unit occupying the location, if not occupied, print warning and return null
     public GameObject GetUnit(Vector3Int location)
     {
         // go through each unit to find whether any unit shares the same location
         for (int i = 0; i < units.Count; i++)
         {
-            UnitMovement movementUnit = units[i].GetComponent<UnitMovement>();
-            if (movementUnit.GetLoc() == location)
+            if(units[i] != null)
             {
-                return units[i];
+                UnitMovement movementUnit = units[i].GetComponent<UnitMovement>();
+                if (movementUnit.GetLoc() == location)
+                {
+                    return units[i];
+                }
             }
         }
 
@@ -226,7 +299,11 @@ public class GameManager : MonoBehaviour
     {
         // remove any dead units
         units = units.Where(unit => unit != null).ToList();
+        enemies = enemies.Where(unit => unit != null).ToList();
     }
 
-    
+    private void GameOver() // NOT DONE, present menu to load a save or quit?
+    {
+        Debug.Log("GAME OVER!");
+    }
 }

@@ -434,7 +434,7 @@ public class MapManager : MonoBehaviour
         TileBase curTile = tilemap.GetTile(loc);
         if(curTile != null)
         {
-            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            if (dataFromTiles[curTile].terrain == "floor" && !GetOccupancyStatus(loc))
             {
                 SetMovable(true, loc);
             }
@@ -446,7 +446,7 @@ public class MapManager : MonoBehaviour
         curTile = tilemap.GetTile(loc);
         if (curTile != null)
         {
-            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            if (dataFromTiles[curTile].terrain == "floor" && !GetOccupancyStatus(loc))
             {
                 SetMovable(true, loc);
             }
@@ -457,7 +457,7 @@ public class MapManager : MonoBehaviour
         curTile = tilemap.GetTile(loc);
         if (curTile != null)
         {
-            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            if (dataFromTiles[curTile].terrain == "floor" && !GetOccupancyStatus(loc))
             {
                 SetMovable(true, loc);
             }
@@ -468,7 +468,7 @@ public class MapManager : MonoBehaviour
         curTile = tilemap.GetTile(loc);
         if (curTile != null)
         {
-            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            if (dataFromTiles[curTile].terrain == "floor" && !GetOccupancyStatus(loc))
             {
                 SetMovable(true, loc);
             }
@@ -479,7 +479,7 @@ public class MapManager : MonoBehaviour
         curTile = tilemap.GetTile(loc);
         if (curTile != null)
         {
-            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            if (dataFromTiles[curTile].terrain == "floor" && !GetOccupancyStatus(loc))
             {
                 SetMovable(true, loc);
             }
@@ -490,7 +490,7 @@ public class MapManager : MonoBehaviour
         curTile = tilemap.GetTile(loc);
         if (curTile != null)
         {
-            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            if (dataFromTiles[curTile].terrain == "floor" && !GetOccupancyStatus(loc))
             {
                 SetMovable(true, loc);
             }
@@ -501,7 +501,7 @@ public class MapManager : MonoBehaviour
         curTile = tilemap.GetTile(loc);
         if (curTile != null)
         {
-            if (dataFromTiles[curTile].terrain == "grass" && !GetOccupancyStatus(loc))
+            if (dataFromTiles[curTile].terrain == "floor" && !GetOccupancyStatus(loc))
             {
                 SetMovable(true, loc);
             }
@@ -534,7 +534,7 @@ public class MapManager : MonoBehaviour
         {
 
             curCenter = URNeighbor(curCenter);
-            Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
+            // Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
             CheckNeighborsMove(curCenter);
 
             cnt++;
@@ -547,7 +547,7 @@ public class MapManager : MonoBehaviour
         {
 
             curCenter = LRNeighbor(curCenter);
-            Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
+            // Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
             CheckNeighborsMove(curCenter);
 
             cnt++;
@@ -560,7 +560,7 @@ public class MapManager : MonoBehaviour
         {
 
             curCenter = BotNeighbor(curCenter);
-            Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
+            // Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
             CheckNeighborsMove(curCenter);
 
             cnt++;
@@ -573,7 +573,7 @@ public class MapManager : MonoBehaviour
         {
 
             curCenter = LLNeighbor(curCenter);
-            Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
+            // Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
             CheckNeighborsMove(curCenter);
 
             cnt++;
@@ -586,7 +586,7 @@ public class MapManager : MonoBehaviour
         {
 
             curCenter = ULNeighbor(curCenter);
-            Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
+            // Debug.Log("curCenter: " + curCenter + ", Cnt: " + cnt + ", unit spd: " + unitSpd);
             CheckNeighborsMove(curCenter);
 
             cnt++;

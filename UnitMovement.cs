@@ -66,7 +66,7 @@ public class UnitMovement : MonoBehaviour
                     if(generalUnit.GetOOC() || generalUnit.GetRemActions() > 0)
                     {
                         Move();
-                        gameObject.GetComponent<UnitCombat>().Attack();
+                        // gameObject.GetComponent<UnitCombat>().Attack();
                     }
 
                     // gameManager.ClearUnitList(); // needed here?
