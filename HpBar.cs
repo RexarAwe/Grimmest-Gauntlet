@@ -7,19 +7,10 @@ public class HpBar : MonoBehaviour
 {
     public Slider slider;
 
-    void Start()
-    {
-        slider = gameObject.GetComponent<Slider>();
-
-        //Camera.main.ViewportToWorldPoint(transform.position);
-
-        //Debug.Log("HP Bar Transform Pos: " + transform.position);
-        //Debug.Log("HP Bar World Pos: " + Camera.main.ScreenToWorldPoint(transform.position));
-    }
-
     public void Init()
     {
         slider = gameObject.GetComponent<Slider>();
+        // transform.SetAsFirstSibling();
     }
 
     public void SetMaxHp(int max)

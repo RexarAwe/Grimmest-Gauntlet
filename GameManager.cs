@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
 
     private MapManager mapManager;
     private CameraControl camControl;
+    private DialogueManager dialogueManager;
 
     private GameObject StartCombatBT;
     private GameObject EndCombatBT;
@@ -32,10 +33,13 @@ public class GameManager : MonoBehaviour
 
     private GameObject playerUnit;
 
+    private List<string> textArray;
+
     void Start()
     {
         mapManager = GameObject.Find("Map Manager").GetComponent<MapManager>();
         camControl = GameObject.Find("Main Camera").GetComponent<CameraControl>();
+        dialogueManager = GameObject.Find("Dialogue Manager").GetComponent<DialogueManager>();
 
         StartCombatBT = GameObject.Find("Start Combat BT");
         EndCombatBT = GameObject.Find("End Combat BT");
@@ -46,6 +50,7 @@ public class GameManager : MonoBehaviour
 
         mapManager.Init();
         camControl.Init();
+        dialogueManager.Init();
 
         camControl.SetCameraPos(7.9f, 4.8f);
         camControl.SetCameraSize(4.3f);
